@@ -4,7 +4,7 @@ services:
   n8n:
     build:
       context: .
-      dockerfile: Dockerfile.n8n
+      dockerfile: Dockerfile
     container_name: n8n-automation
     ports:
       - "5678:5678"
