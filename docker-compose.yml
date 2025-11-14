@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   n8n:
@@ -40,7 +40,7 @@ services:
       - MINIO_ROOT_PASSWORD=minioadmin
     command: server /data --console-address ":9001"
     volumes:
-      - minio_/data
+      - minio_data:/data
     restart: unless-stopped
     networks:
       - app-network
@@ -69,11 +69,29 @@ services:
     networks:
       - app-network
 
+  # NocoDB - Airtable-like database
+  nocodb:
+    image: nocodb/nocodb:latest
+    container_name: nocodb
+    ports:
+      - "8081:8080"
+    environment:
+      - NC_DB=sqlite
+      - NC_HOST=0.0.0.0
+      - NC_PORT=8080
+      - NC_BASE_URL=http://localhost:8081
+    volumes:
+      - nocodb_data:/usr/app/data
+    restart: unless-stopped
+    networks:
+      - app-network
+
 volumes:
-  n8n_
-  minio_
+  n8n_data:
+  minio_data:
   kokoro_models:
   piper_models:
+  nocodb_data:
 
 networks:
   app-network:

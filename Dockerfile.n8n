@@ -1,4 +1,4 @@
-FROM n8nio/n8n:latest
+FROM n8nio/n8n:1.113.3
 
 # Install system dependencies
 RUN apk add --no-cache \
