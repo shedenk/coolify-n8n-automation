@@ -1,0 +1,115 @@
+{
+  "name": "Daily Video Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "cronExpression": "0 */1 * * *"
+      },
+      "id": "cron-trigger",
+      "name": "Cron Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "auto-generated-id",
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "command": "yt-dlp -x --audio-format mp3 -o \"/downloads/{{ $json.id }}.mp3\" \"{{ $json.youtube_url }}\""
+      },
+      "id": "download-audio",
+      "name": "Download Audio",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://wyoming-piper:10200",
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "text": "{{ $json.tts_text }}",
+          "voice": "en_US-lessac-medium"
+        }
+      },
+      "id": "tts-request",
+      "name": "TTS Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "command": "ffmpeg -i \"/downloads/{{ $json.id }}.mp3\" -i \"/workspace/background.mp4\" -c:v copy -c:a aac -shortest \"/downloads/{{ $json.id }}_final.mp4\""
+      },
+      "id": "merge-video",
+      "name": "Merge Video",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "command": "aws s3 cp \"/downloads/{{ $json.id }}_final.mp4\" s3://videos/{{ $json.id }}_final.mp4"
+      },
+      "id": "upload-to-minio",
+      "name": "Upload to MinIO",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    }
+  ],
+  "connections": {
+    "Cron Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Audio": {
+      "main": [
+        [
+          {
+            "node": "TTS Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "TTS Request": {
+      "main": [
+        [
+          {
+            "node": "Merge Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Video": {
+      "main": [
+        [
+          {
+            "node": "Upload to MinIO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "1.0"
+}
