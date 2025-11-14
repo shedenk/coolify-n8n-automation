@@ -9,6 +9,8 @@ RUN apk add --no-cache \
     ffmpeg \
     python3 \
     py3-pip \
+    py3-awscli \
+    py3-newspaper3k \
     pandoc \
     qpdf \
     chromium \
@@ -18,15 +20,11 @@ RUN apk add --no-cache \
     ca-certificates \
     ttf-freefont \
     groff \
-    less \
-    && pip3 install awscli
+    less
 
 # Install yt-dlp
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
     chmod +x /usr/local/bin/yt-dlp
-
-# Install Python packages
-RUN pip3 install newspaper4k
 
 # Install Puppeteer globally
 RUN npm install -g puppeteer
