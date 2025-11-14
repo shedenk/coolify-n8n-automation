@@ -27,8 +27,12 @@ RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o 
 # Install Python packages via pip dengan --break-system-packages
 RUN pip3 install --break-system-packages newspaper4k awscli
 
-# Install Puppeteer globally
-RUN npm install -g puppeteer
+# Install Puppeteer globally dengan retry dan timeout
+RUN npm config set fetch-timeout 60000 && \
+    npm config set fetch-retry-mintimeout 10000 && \
+    npm config set fetch-retry-maxtimeout 60000 && \
+    npm config set fetch-retries 5 && \
+    npm install -g puppeteer
 
 # Setup AWS CLI for MinIO
 ENV AWS_ACCESS_KEY_ID=minioadmin
